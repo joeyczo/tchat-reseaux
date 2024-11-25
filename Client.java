@@ -25,7 +25,7 @@ public class Client {
 
         try {
 
-            Socket toServer = new Socket("localhost", 6000);
+            Socket toServer = new Socket("172.16.97.92", 6000);
 
             System.out.println("Connecté au serveur !");
 
@@ -52,7 +52,7 @@ public class Client {
 				// Gère la lecture des messages des autres utilisateurs
                 messageEntrant = in.readLine();
 				
-                if (!messageEntrant.contains(pseudo))
+                if (!messageEntrant.contains("["+pseudo+"]"))
                     System.out.println(messageEntrant);
 
             }
