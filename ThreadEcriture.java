@@ -1,20 +1,35 @@
 import java.io.PrintWriter;
-import java.util.Scanner;
+import java.net.Socket;
+
+import iut.algo.Clavier;
 
 public class ThreadEcriture implements Runnable {
 
-    private Client client;
+    private Socket      socket;
+	private PrintWriter out;
 
-    public ThreadEcriture(Client client) {
-        this.client = client;
+    public ThreadEcriture(Socket socket) 
+	{
+        this.socket = socket;
+
+        try 
+		{
+           this.out = new PrintWriter(this.socket.getOutputStream(), true);
+        } 
+		catch (Exception e) 
+		{
+            e.printStackTrace();
+        }
     }
 
-    @Override
     public void run() {
+
+		String messageSortant;
 
         while (true) {
 
-
+			messageSortant = Clavier.lireString();
+			this.out.println(messageSortant);
 
         }
 

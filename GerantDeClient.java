@@ -22,7 +22,7 @@ public class GerantDeClient implements Runnable{
         try {
 
             this.out = new PrintWriter(this.socket.getOutputStream(), true);
-            this.in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
+            this.in  = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
 
         } catch (Exception e) {
 
@@ -50,7 +50,6 @@ public class GerantDeClient implements Runnable{
 
                 this.pseudo = this.in.readLine();
                 peutSeConnecter = this.serv.ajouterUtilisateur(this.pseudo);
-                System.out.println("PSEUDO : " + this.pseudo + " RESULTAT : " + peutSeConnecter);
 
                 if (!peutSeConnecter) this.out.println("Le pseudo est déjà utilisé");
             }
@@ -63,7 +62,7 @@ public class GerantDeClient implements Runnable{
 
                 String msg = this.in.readLine();
 
-                bok = msg != null; // Vérifie si le client est toujours là
+                bok = (msg != null); // Vérifie si le client est toujours là
                 if( !bok )
                 {
                     this.serv.envoyerMessage(this.pseudo + " s'est déconnecté");

@@ -18,19 +18,18 @@ public class Client {
     public Client() {
 
         boolean deconnecte;
-        String messageEntrant;
-        String messageSortant;
-        String pseudo;
+        String  messageEntrant;
+        String  pseudo;
 
         System.out.println("Connexion au serveur en cours ...");
 
         try {
 
-            Socket toServer = new Socket("172.26.6.237", 6000);
+            Socket toServer = new Socket("localhost", 6000);
 
             System.out.println("Connecté au serveur !");
 
-            PrintWriter out = new PrintWriter(toServer.getOutputStream(), true);
+            PrintWriter    out = new PrintWriter(toServer.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(toServer.getInputStream()));
 
             // Vérifie si le pseudo est disponible ou non
@@ -42,20 +41,20 @@ public class Client {
 
             } while (!in.readLine().equals("PSEUDO OK"));
 
+			// Gère l'envoie des messages
+			ThreadEcriture thE = new ThreadEcriture(toServer);
+			Thread threadEcriture = new Thread(thE);
+			threadEcriture.start();
+
             deconnecte = false;
             while ( !deconnecte )
             {
+				// Gère la lecture des messages des autres utilisateurs
                 messageEntrant = in.readLine();
-
-                ThreadEcriture thE = new ThreadEcriture(this);
-
-                Thread threadEcriture  = new Thread(thE);
-
-
-                System.out.println("[MESSAGE] : " + messageEntrant);
-
+				
                 if (!messageEntrant.contains(pseudo))
                     System.out.println(messageEntrant);
+
             }
 
             in.close();
