@@ -3,35 +3,40 @@ import java.net.Socket;
 
 import iut.algo.Clavier;
 
-public class ThreadEcriture implements Runnable {
 
-    private Socket      socket;
+public class ThreadEcriture implements Runnable 
+{
+
+	private Socket      socket;
 	private PrintWriter out;
 
-    public ThreadEcriture(Socket socket) 
+	public ThreadEcriture(Socket socket) 
 	{
-        this.socket = socket;
+		this.socket = socket;
 
-        try 
+		try 
 		{
-           this.out = new PrintWriter(this.socket.getOutputStream(), true);
-        } 
+			this.out = new PrintWriter(this.socket.getOutputStream(), true);
+		} 
 		catch (Exception e) 
 		{
-            e.printStackTrace();
-        }
-    }
+			e.printStackTrace();
+		}
+	}
 
-    public void run() {
+	/**
+	 * Lis le message de l'utilisateur et l'envoie au gérant de client lié au client lié à ce thread
+	 */
+	public void run()
+	{
 
 		String messageSortant;
 
-        while (true) {
-
+		while (true) 
+		{
 			messageSortant = Clavier.lireString();
 			this.out.println(messageSortant);
+		}
 
-        }
-
-    }
+	}
 }

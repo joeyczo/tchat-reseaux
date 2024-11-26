@@ -1,70 +1,78 @@
 import iut.algo.Clavier;
 
-import java.util.Scanner;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-public class Client {
+public class Client 
+{
 
-    public static void main(String[] args) {
+	private boolean deconnecte;
+	private String  messageEntrant;
+	private String  pseudo;
 
-        new Client();
+	private PrintWriter    out;
+	private BufferedReader in;
 
-    }
+	private Socket socket;
 
-    public Client() {
 
-        boolean deconnecte;
-        String  messageEntrant;
-        String  pseudo;
+	public Client() 
+	{
+		this.deconnecte = false;
 
-        System.out.println("Connexion au serveur en cours ...");
+		System.out.println("Connexion au serveur en cours ...");
 
-        try {
+		try 
+		{
 
-            Socket toServer = new Socket("172.16.97.92", 6000);
+			this.socket = new Socket("172.16.97.92", 6000);
 
-            System.out.println("Connecté au serveur !");
+			System.out.println("Connecté au serveur !");
 
-            PrintWriter    out = new PrintWriter(toServer.getOutputStream(), true);
-            BufferedReader in = new BufferedReader(new InputStreamReader(toServer.getInputStream()));
+			this.out = new PrintWriter(this.socket.getOutputStream(), true);
+			this.in  = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
 
-            // Vérifie si le pseudo est disponible ou non
-            do {
+			// Vérifie si le pseudo est disponible ou non
+			do 
+			{
+				System.out.print("Entrez votre pseudo : ");
+				this.pseudo = Clavier.lireString();
+				out.println(this.pseudo);
 
-                System.out.print("Entrez votre pseudo : ");
-                pseudo = Clavier.lireString();
-                out.println(pseudo);
-
-            } while (!in.readLine().equals("PSEUDO OK"));
+			} while (!in.readLine().equals("PSEUDO OK"));
 
 			// Gère l'envoie des messages
-			ThreadEcriture thE = new ThreadEcriture(toServer);
+			ThreadEcriture thE    = new ThreadEcriture(this.socket);
 			Thread threadEcriture = new Thread(thE);
 			threadEcriture.start();
 
-            deconnecte = false;
-            while ( !deconnecte )
-            {
+			while ( !this.deconnecte )
+			{
 				// Gère la lecture des messages des autres utilisateurs
-                messageEntrant = in.readLine();
+				this.messageEntrant = in.readLine();
 				
-                if (!messageEntrant.contains("["+pseudo+"]"))
-                    System.out.println(messageEntrant);
+				if (!this.messageEntrant.contains("["+this.pseudo+"]"))
+					System.out.println(this.messageEntrant);
+			}
 
-            }
+			this.in    .close();
+			this.out   .close();
+			this.socket.close();
 
-            in.close();
-            out.close();
-            toServer.close();
+		}
+		catch (UnknownHostException e)  
+		{ 
+			e.printStackTrace(); 
+		}
+		catch (Exception e)
+		{ 
+			e.printStackTrace(); 
+		}
 
-        }
-        catch (UnknownHostException e)  { e.printStackTrace(); }
-        catch (Exception e)             { e.printStackTrace(); }
+	}
 
-    }
-
+	public static void main(String[] args) { new Client(); }
 }
