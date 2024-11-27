@@ -60,6 +60,37 @@ public class Serveur {
 			gdc.envoyerMessage(s);
 	}
 
+
+	/**
+	 * Permet d'envoyer un message à tous les gérants de client pour envoyer par la suite au client concerné
+	 * @param message le message à transmettre
+	 * @param pseudo le pseudo de l'utilisateur à qui envoyer le message
+	 */
+	public void envoyerMessagePrive(String message, String pseudo)
+	{
+		for (GerantDeClient gdc : this.clients)
+			gdc.envoyerMessagePrive(message, pseudo);
+	}
+
+
+	/**
+	 * Vérifie si le pseudo passer en paramètre existe ou non
+	 * @param pseudo pseudo à vérifier
+	 * @return vrai si le pseudo existe
+	 */
+	public boolean verifPseudo(String pseudo)
+	{
+		boolean pseudoExiste = false;
+
+		for (String pseudoConnectes : this.connectes)
+		{
+			if (pseudoConnectes.equals(pseudo))
+				pseudoExiste = true;
+		}
+
+		return pseudoExiste;
+	}
+
 	/**
 	 * Permet d'ajouter un nouvel utilisateur à la liste des utilisateurs connectés
 	 * Doit également vérifier que l'utilisateur n'existe pas

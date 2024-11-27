@@ -28,12 +28,14 @@ public class Client
 		try 
 		{
 
-			this.socket = new Socket("172.16.97.92", 6000);
+			this.socket = new Socket("localhost", 6000);
 
 			System.out.println("Connecté au serveur !");
 
 			this.out = new PrintWriter(this.socket.getOutputStream(), true);
 			this.in  = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
+
+			String retourGDC = "";
 
 			// Vérifie si le pseudo est disponible ou non
 			do 
@@ -42,7 +44,10 @@ public class Client
 				this.pseudo = Clavier.lireString();
 				out.println(this.pseudo);
 
-			} while (!in.readLine().equals("PSEUDO OK"));
+				retourGDC = this.in.readLine();
+				System.out.println(retourGDC); // Affiche le message d'erreur de l'entrer du pseudo ou si il est accepté
+
+			} while (!retourGDC.equals("Pseudo accepté"));
 
 			// Gère l'envoie des messages
 			ThreadEcriture thE    = new ThreadEcriture(this.socket);
