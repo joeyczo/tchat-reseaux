@@ -1,6 +1,7 @@
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -8,12 +9,14 @@ public class Serveur {
 
 	private List<String>         connectes;
 	private List<GerantDeClient> clients;
+	private List<String>         messages;
 
 	public Serveur() 
 	{
 
-		this.connectes = new LinkedList<>();
-		this.clients   = new LinkedList<>();
+		this.connectes = new LinkedList<String>        ();
+		this.clients   = new LinkedList<GerantDeClient>();
+		this.messages  = new LinkedList<String>        ();
 
 		try 
 		{
@@ -21,7 +24,8 @@ public class Serveur {
 			ServerSocket ss  = new ServerSocket(6000);
 			boolean      bOk = true;
 			
-			while (bOk) {
+			while (bOk)
+			{
 
 				Socket s = ss.accept();
 
@@ -52,12 +56,14 @@ public class Serveur {
 
 	/**
 	 * Permet d'envoyer un message à tous les gérants de client pour envoyer par la suite au client lié
-	 * @param s message à envoyer
+	 * @param message message à envoyer
 	 */
-	public void envoyerMessage(String s) 
+	public void envoyerMessage(String message)
 	{
 		for (GerantDeClient gdc : this.clients)
-			gdc.envoyerMessage(s);
+			gdc.envoyerMessage(message);
+
+		this.messages.add(message);
 	}
 
 
@@ -70,6 +76,26 @@ public class Serveur {
 	{
 		for (GerantDeClient gdc : this.clients)
 			gdc.envoyerMessagePrive(message, pseudo);
+	}
+
+	/**
+	 * Envoie au gérant de client les messages contenant la recherche
+	 * @param pseudo le pseudo de l'utilisateur à qui envoyer la liste des messages ou la recherche est présente
+	 * @param recherche la recherche que l'utilisateur à passer
+	 */
+	public void envoyerRecherche(String pseudo, String recherche)
+	{
+		List<String> recherches = new ArrayList<String>();
+
+		for(String message : messages)
+			if(message.contains(recherche))
+				recherches.add(message);
+
+		if ( recherches.isEmpty() )
+			recherches.add("Auncun message ne contient : " + recherche);
+
+		for (GerantDeClient gdc : this.clients)
+			gdc.envoyerRecherche(pseudo, recherches);
 	}
 
 
@@ -94,16 +120,16 @@ public class Serveur {
 	/**
 	 * Permet d'ajouter un nouvel utilisateur à la liste des utilisateurs connectés
 	 * Doit également vérifier que l'utilisateur n'existe pas
-	 * @param s Nom de l'utilisateur
+	 * @param pseudo Nom de l'utilisateur
 	 * @return true s'il peut se connecter, sinon false
 	 */
-	public boolean ajouterUtilisateur(String s) 
+	public boolean ajouterUtilisateur(String pseudo)
 	{
 		boolean peutAjouter = true;
 
 		for (String sCo : this.connectes) 
 		{
-			if (sCo != null && sCo.equals(s)) 
+			if (sCo != null && sCo.equals(pseudo))
 			{
 				peutAjouter = false;
 				break;
@@ -112,14 +138,14 @@ public class Serveur {
 
 		if (!peutAjouter) return false;
 
-		this.connectes.add(s);
+		this.connectes.add(pseudo);
 
 		return true;
 	}
 
 	/**
 	 * Supprime le pseudo de l'utilisateur qui se déconnecte 
-	 * @param s pseudo de l'utilisateur
+	 * @param pseudo pseudo de l'utilisateur
 	 */
-	public void deconnecterUtilisateur(String s) { this.connectes.remove(s); }
+	public void deconnecterUtilisateur(String pseudo) { this.connectes.remove(pseudo); }
 }

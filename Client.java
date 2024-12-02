@@ -28,7 +28,7 @@ public class Client
 		try 
 		{
 
-			this.socket = new Socket("localhost", 6000);
+			this.socket = new Socket("172.26.6.237", 6000);
 
 			System.out.println("Connecté au serveur !");
 
@@ -59,7 +59,7 @@ public class Client
 				// Gère la lecture des messages des autres utilisateurs
 				this.messageEntrant = in.readLine();
 				
-				if (!this.messageEntrant.contains("["+this.pseudo+"]"))
+				if (!this.messageEntrant.startsWith("["+this.pseudo+"]"))
 					System.out.println(this.messageEntrant);
 			}
 

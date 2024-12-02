@@ -2,6 +2,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Arrays;
+import java.util.List;
 
 public class GerantDeClient implements Runnable
 {
@@ -40,10 +42,9 @@ public class GerantDeClient implements Runnable
 
 	/**
 	 * Envoie un message au client lié à ce gérent de client
-	 * @param s Le message à envoyer
+	 * @param message Le message à envoyer
 	 */
-	public void envoyerMessage(String s) { this.out.println(s); }
-
+	public void envoyerMessage(String message) { this.out.println(message); }
 
 	/**
 	 * Envoie le message que si c'est le client concerné
@@ -54,6 +55,20 @@ public class GerantDeClient implements Runnable
 	{
 		if (this.pseudo.equals(pseudo))
 			this.out.println(message);
+	}
+
+	/**
+	 * Envoie au client si c'est lui qui a fait la recherche les messages qui contiennent la recherche
+	 * @param pseudo le pseudo de l'utilisateur qui a fait la commande
+	 * @param recherches la liste des messages contenant la recherche
+	 */
+	public void envoyerRecherche(String pseudo, List<String> recherches)
+	{
+		if (this.pseudo.equals(pseudo))
+			for (String recherche : recherches)
+			{
+				this.out.println("Recherche : " + recherche);
+			}
 	}
 
 	public void run() 
@@ -87,6 +102,7 @@ public class GerantDeClient implements Runnable
 			{
 				String msg = this.in.readLine();
 
+
 				bok = (msg != null); // Vérifie si le client est toujours là
 				if( !bok )
 				{
@@ -98,15 +114,46 @@ public class GerantDeClient implements Runnable
 					if (msg.startsWith("/msg"))
 					{
 						String[] texte     = msg.split(" ");
-						String   pseudoMsg = texte[1];
+						String   message   = "";
+						String   pseudoMsg = "";
 
-						// 5 pour la taille "/msg " + la taille du pseudo
-						String   message   = msg.substring(5 + pseudoMsg.length());
+						if (texte.length >= 2)
+							pseudoMsg = texte[1];
+
+						try
+						{
+							// 5 pour la taille "/msg " + la taille du pseudo
+							message = msg.substring(5 + pseudoMsg.length());
+						}
+						catch (RuntimeException e)
+						{
+							System.out.println(e.getMessage());
+						}
+
 
 						if ( message.length() >= 1 && this.serv.verifPseudo(pseudoMsg) )
 							this.serv.envoyerMessagePrive(this.ITALIQUE + this.COULEUR_GRIS + "(De " + this.pseudo + " à vous)" + message + this.REINITIALISATION, pseudoMsg);
 						else
 							this.out.println("Erreur de syntaxe pour le message privé \"/msg \"pseudo\" \"message\"\" ");
+
+					}
+					else if (msg.startsWith("/recherche"))
+					{
+						String recherche = "";
+						try
+						{
+							// 11 pour la taille "/recherche "
+							recherche = msg.substring(11);
+						}
+						catch (Exception e)
+						{
+							System.out.println(e.getMessage());
+						}
+
+						if ( recherche.length() >= 1 )
+							this.serv.envoyerRecherche(this.pseudo, recherche);
+						else
+							this.out.println("Erreur de syntaxe pour la recherche \"/recherche \"mot ou phrase à chercher\" ");
 					}
 					else
 						this.serv.envoyerMessage("[" + this.pseudo + "] " + msg );
